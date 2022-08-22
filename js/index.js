@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', event =>{
         .then(githubUsers => {
             for(user in githubUsers.items){
                 const domUserList = document.getElementById('user-list')
+                domUserList.style.height = "700px"
+                domUserList.style.overflowY = "scroll"
                 const domUser = document.createElement('li')
                 domUser.innerHTML = `<div>
                     <img src="${githubUsers.items[user].avatar_url}" width="100px" height="100px"/>
@@ -23,21 +25,38 @@ document.addEventListener('DOMContentLoaded', event =>{
 
                 domUserList.append(domUser)
 
-                document.querySelectorAll('.github-user').forEach(handleClickOnUserName)
+                handleClickOnUserName(document.querySelectorAll('.github-user'))
             }
         })
     }
 
-    function handleClickOnUserName(domUser){
-        domUser.addEventListener('click', event =>{
-            fetch(`https://api.github.com/users/${domUser.textContent}/repos`)
-            .then(result => result.json())
-            .then(repos => {
-                const reposList = document.getElementById('repos-list')
-                repos.forEach(repo =>{
-                    const repoItem = document.createElement('li')
-                    repoItem.textContent = repo.name
-                    reposList.append(repoItem)
+    function makeActive(domUsers, domUser){
+        domUsers.forEach(user =>{
+            if(domUser != user){
+                user.parentNode.style.border = "none"
+            }else{
+                user.parentNode.style.border = "0.2em red solid"
+            }
+        })
+    }
+
+    function handleClickOnUserName(domUsers){
+        domUsers.forEach(domUser =>{
+            domUser.addEventListener('click', event =>{
+                fetch(`https://api.github.com/users/${domUser.textContent}/repos`)
+                .then(result => result.json())
+                .then(repos => {
+                    const reposList = document.getElementById('repos-list')
+                    reposList.style.height = "700px"
+                    reposList.style.overflowY = "scroll"
+                    reposList.innerHTML = ""
+                    repos.forEach(repo =>{
+                        const repoItem = document.createElement('li')
+                        repoItem.textContent = repo.name
+                        reposList.append(repoItem)
+                    })
+
+                    makeActive(domUsers, domUser)
                 })
             })
         })
